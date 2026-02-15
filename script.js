@@ -15,7 +15,7 @@ document.getElementById("analyzeBtn").addEventListener("click", async function (
     resultDiv.innerHTML = "";
 
     try {
-        const response = await fetch("https://YOUR-RENDER-URL.onrender.com/analyze", {
+        const response = await fetch("https://resume-analyzer-666u.onrender.com/analyze", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
