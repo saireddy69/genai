@@ -12,10 +12,10 @@ app = FastAPI()
 # Load Models (Global)
 # ------------------------
 
-embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
+embedding_model = None
+tokenizer = None
+llm_model = None
 
-tokenizer = AutoTokenizer.from_pretrained("google/flan-t5-small")
-llm_model = AutoModelForSeq2SeqLM.from_pretrained("google/flan-t5-small")
 
 client = chromadb.PersistentClient(path="./chroma_db")
 collection = client.get_or_create_collection(name="pdf_collection")
@@ -77,8 +77,23 @@ def retrieve_chunks(query, top_k=1):
 
     return results["documents"][0], results["distances"][0]
 
+def load_models():
+    global embedding_model, tokenizer, llm_model
+
+    if embedding_model is None:
+        embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
+
+    if tokenizer is None:
+        from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+        tokenizer = AutoTokenizer.from_pretrained("google/flan-t5-small")
+        llm_model = AutoModelForSeq2SeqLM.from_pretrained("google/flan-t5-small")
+
+
 @app.post("/upload")
+
 async def upload_pdf(file: UploadFile = File(...)):
+    load_models()
+
     reader = PdfReader(file.file)
 
     full_text = ""
@@ -103,6 +118,8 @@ async def upload_pdf(file: UploadFile = File(...)):
 
 @app.post("/ask")
 async def ask_question(query: str):
+    load_models()
+    
     docs, distances = retrieve_chunks(query)
 
     if distances[0] > 1.2:
