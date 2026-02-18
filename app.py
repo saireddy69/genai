@@ -14,8 +14,8 @@ app = FastAPI()
 
 embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
 
-tokenizer = AutoTokenizer.from_pretrained("google/flan-t5-base")
-llm_model = AutoModelForSeq2SeqLM.from_pretrained("google/flan-t5-base")
+tokenizer = AutoTokenizer.from_pretrained("google/flan-t5-small")
+llm_model = AutoModelForSeq2SeqLM.from_pretrained("google/flan-t5-small")
 
 client = chromadb.PersistentClient(path="./chroma_db")
 collection = client.get_or_create_collection(name="pdf_collection")
